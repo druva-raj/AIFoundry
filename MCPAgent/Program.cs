@@ -4,6 +4,8 @@ using Microsoft.Extensions.Configuration;
 using Azure.AI.Agents.Persistent;
 using Azure.Identity;
 
+// Reference - https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/ai/Azure.AI.Agents.Persistent/samples/Sample32_PersistentAgents_MCP.md
+
 var configRoot = new ConfigurationBuilder()
     .AddEnvironmentVariables()
     .Build();
