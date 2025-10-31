@@ -378,4 +378,3 @@ FodyWeavers.xsd
 # Application settings with sensitive data
 appsettings.json
 appsettings.*.json
-!appsettings.Development.json
