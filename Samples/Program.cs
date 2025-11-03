@@ -194,6 +194,7 @@ class Program
             new Streaming(_agentClient!, _config!.ModelDeploymentName),
             new ConnectedAgent(_agentClient!, _config!.ModelDeploymentName),
             new AzureAISearchAgent(_agentClient!, _config!.ModelDeploymentName, _config!),
+            new CombinedSearchMCPAgent(_agentClient!, _config!.ModelDeploymentName, _config!),
             new ErrorHandling(_agentClient!, _config!.ModelDeploymentName),
         };
     }
