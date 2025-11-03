@@ -19,6 +19,7 @@ public static class ConfigurationHelper
         public required string ClientSecret { get; set; }
         public string? AzureAIConnectionId { get; set; }
         public string? AzureAISearchIndexName { get; set; }
+        public string? ApplicationInsightsConnectionString { get; set; }
     }
 
     /// <summary>
@@ -47,7 +48,8 @@ public static class ConfigurationHelper
             ClientSecret = configRoot["CLIENT_SECRET"] 
                 ?? throw new InvalidOperationException("CLIENT_SECRET is not configured"),
             AzureAIConnectionId = configRoot["AZURE_AI_CONNECTION_ID"],
-            AzureAISearchIndexName = configRoot["AZURE_AI_SEARCH_INDEX_NAME"]
+            AzureAISearchIndexName = configRoot["AZURE_AI_SEARCH_INDEX_NAME"],
+            ApplicationInsightsConnectionString = configRoot["APPLICATIONINSIGHTS_CONNECTION_STRING"]
         };
 
         return config;
@@ -65,6 +67,7 @@ public static class ConfigurationHelper
         Console.WriteLine($"  Tenant ID: {config.TenantId}");
         Console.WriteLine($"  Client ID: {config.ClientId}");
         Console.WriteLine($"  Client Secret: {"*".PadLeft(config.ClientSecret.Length, '*')}");
+        Console.WriteLine($"  Application Insights: {(string.IsNullOrEmpty(config.ApplicationInsightsConnectionString) ? "Not configured (console only)" : "Configured ✓")}");
         Console.WriteLine();
     }
 

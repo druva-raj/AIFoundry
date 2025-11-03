@@ -23,8 +23,6 @@ public class ErrorHandling : Base
     public override async Task RunAsync()
     {
         DisplayHeader();
-
-        PersistentAgent? agent = null;
         PersistentAgentThread? thread = null;
         string agentId = "asst_Wm7BwZCJbFEEZBb1iH6LQoJm";
 
