@@ -189,6 +189,7 @@ class Program
         {
             new BasicAgent(_agentClient!, _config!.ModelDeploymentName),
             new TracingAgent(_agentClient!, _config!.ModelDeploymentName),
+            new TracingGrouping(_agentClient!, _config!.ModelDeploymentName),
             new MCP(_agentClient!, _config!.ModelDeploymentName),
             new FunctionCalling(_agentClient!, _config!.ModelDeploymentName),
             new Streaming(_agentClient!, _config!.ModelDeploymentName),
