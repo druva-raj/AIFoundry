@@ -192,6 +192,7 @@ class Program
             new TracingGrouping(_agentClient!, _config!.ModelDeploymentName),
             new MCP(_agentClient!, _config!.ModelDeploymentName),
             new FunctionCalling(_agentClient!, _config!.ModelDeploymentName),
+            new FileSearch(_agentClient!, _config!.ModelDeploymentName),
             new Streaming(_agentClient!, _config!.ModelDeploymentName),
             new ConnectedAgent(_agentClient!, _config!.ModelDeploymentName),
             new AzureAISearchAgent(_agentClient!, _config!.ModelDeploymentName, _config!),
