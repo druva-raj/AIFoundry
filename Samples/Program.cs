@@ -13,6 +13,22 @@ class Program
     private static ConfigurationHelper.AIFoundryConfig? _config;
     private static PersistentAgentsClient? _agentClient;
 
+    /// <summary>
+    /// Safely clears the console, handling cases where console is not available.
+    /// </summary>
+    private static void SafeConsoleClear()
+    {
+        try
+        {
+            Console.Clear();
+        }
+        catch (IOException)
+        {
+            // Console.Clear() can throw IOException when handle is invalid (e.g., debugging in VS Code)
+            // Simply skip clearing in this case
+        }
+    }
+
     static async Task Main(string[] args)
     {
         Console.WriteLine("Azure AI Foundry Sample Suite");
@@ -23,8 +39,8 @@ class Program
         if (!await InitializeAsync())
         {
             Console.WriteLine("Initialization failed. Please check your configuration and try again.");
-            Console.WriteLine("Press any key to exit...");
-            Console.ReadKey();
+            Console.WriteLine("Press Enter to exit...");
+            try { Console.ReadLine(); } catch { }
             return;
         }
 
@@ -124,7 +140,7 @@ class Program
             if (choice >= 1 && choice <= samples.Count)
             {
                 var selectedSample = samples[choice - 1];
-                Console.Clear();
+                SafeConsoleClear();
                 
                 try
                 {
@@ -139,9 +155,9 @@ class Program
                     Console.WriteLine($"Error Code: {azEx.ErrorCode}");
                     Console.WriteLine($"Message: {azEx.Message}");
                     Console.WriteLine("═══════════════════════════════════════════════════════════");
-                    Console.WriteLine("\nPress any key to return to the main menu...");
-                    Console.ReadKey();
-                    Console.Clear();
+                    Console.WriteLine("\nPress Enter to return to the main menu...");
+                    try { Console.ReadLine(); } catch { }
+                    SafeConsoleClear();
                 }
                 catch (OperationCanceledException)
                 {
@@ -150,9 +166,9 @@ class Program
                     Console.WriteLine("═══════════════════════════════════════════════════════════");
                     Console.WriteLine("The operation was cancelled by the user or timed out.");
                     Console.WriteLine("═══════════════════════════════════════════════════════════");
-                    Console.WriteLine("\nPress any key to return to the main menu...");
-                    Console.ReadKey();
-                    Console.Clear();
+                    Console.WriteLine("\nPress Enter to return to the main menu...");
+                    try { Console.ReadLine(); } catch { }
+                    SafeConsoleClear();
                 }
                 catch (Exception ex)
                 {
@@ -166,16 +182,16 @@ class Program
                         Console.WriteLine($"Inner Exception: {ex.InnerException.Message}");
                     }
                     Console.WriteLine("═══════════════════════════════════════════════════════════");
-                    Console.WriteLine("\nPress any key to return to the main menu...");
-                    Console.ReadKey();
-                    Console.Clear();
+                    Console.WriteLine("\nPress Enter to return to the main menu...");
+                    try { Console.ReadLine(); } catch { }
+                    SafeConsoleClear();
                 }
             }
             else
             {
                 Console.WriteLine("Invalid choice. Please try again.");
                 await Task.Delay(1500);
-                Console.Clear();
+                SafeConsoleClear();
             }
         }
     }
@@ -198,6 +214,7 @@ class Program
             new AzureAISearchAgent(_agentClient!, _config!.ModelDeploymentName, _config!),
             new CombinedSearchMCPAgent(_agentClient!, _config!.ModelDeploymentName, _config!),
             new ErrorHandling(_agentClient!, _config!.ModelDeploymentName),
+            new ContentFilter(_agentClient!, _config!.ModelDeploymentName),
         };
     }
 

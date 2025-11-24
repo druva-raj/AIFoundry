@@ -1,4 +1,5 @@
 using Azure.AI.Agents.Persistent;
+using Microsoft.AspNetCore.WebUtilities;
 
 namespace Samples.Common;
 
@@ -53,8 +54,8 @@ public abstract class Base
     {
         Console.WriteLine();
         Console.WriteLine(new string('-', 60));
-        Console.WriteLine("Sample completed! Press any key to return to the main menu...");
-        Console.ReadKey();
+        Console.WriteLine("Sample completed! Press Enter to return to the main menu...");
+        try { Console.ReadLine(); } catch { }
         Console.Clear();
     }
 
@@ -75,8 +76,10 @@ public abstract class Base
 
         while (run.Status == RunStatus.Queued || 
                run.Status == RunStatus.InProgress || 
-               run.Status == RunStatus.RequiresAction)
+               run.Status == RunStatus.RequiresAction ||
+               run.Status == RunStatus.Cancelling)
         {
+            Console.WriteLine($"Current run status: {run.Status}");
             await Task.Delay(TimeSpan.FromMilliseconds(1000));
             run = await AgentClient.Runs.GetRunAsync(thread.Id, run.Id);
 
@@ -107,9 +110,38 @@ public abstract class Base
                 {
                     Console.WriteLine("Run is taking too long. Cancelling the run.");
                     await AgentClient.Runs.CancelRunAsync(thread.Id, run.Id);
+                    
+                    // Fetch the updated status after cancellation
+                    await Task.Delay(TimeSpan.FromMilliseconds(500));
+                    run = await AgentClient.Runs.GetRunAsync(thread.Id, run.Id);
                     break;
                 }
             }
+
+            if (run.Status == "incomplete")
+            {
+                var reason = run.IncompleteDetails?.Reason;
+                Console.WriteLine($"\n⚠ Run marked as incomplete. Reason: {reason}");
+                
+                break;
+            }
+        }
+
+        // Display final status information
+        Console.WriteLine($"\nRun finished with status: {run.Status}");
+        
+        // Handle non-completed statuses
+        if (run.Status != RunStatus.Completed)
+        {
+            Console.WriteLine($"\n⚠ Warning: Run did not complete successfully.");
+            Console.WriteLine($"Status: {run.Status}");
+            
+            if (run.LastError != null)
+            {
+                Console.WriteLine($"Error Code: {run.LastError.Code}");
+                Console.WriteLine($"Error Message: {run.LastError.Message}");
+            }
+            
         }
 
         return run;

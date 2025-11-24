@@ -94,18 +94,16 @@ public class BasicAgent : Base
         // Wait for completion
         run = await WaitForRunCompletionAsync(thread, run);
 
-        // Check run status
-        if (run.Status != RunStatus.Completed)
+        // Check run status and display appropriate message
+        if (run.Status == RunStatus.Completed)
         {
-            Console.WriteLine($"Run did not complete successfully. Status: {run.Status}");
-            if (run.LastError != null)
-            {
-                Console.WriteLine($"Error: {run.LastError.Message}");
-            }
+            Console.WriteLine("Response generated successfully!");
         }
         else
         {
-            Console.WriteLine("Response generated successfully!");
+            // Detailed error information is already displayed by WaitForRunCompletionAsync
+            // Just log a summary here
+            Console.WriteLine($"\n⚠ Run ended with status: {run.Status}");
         }
     }
 }
