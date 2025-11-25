@@ -1,6 +1,11 @@
 ﻿using Samples.Common;
 using Samples.Resources;
 using Azure.AI.Agents.Persistent;
+using OpenTelemetry;
+using OpenTelemetry.Trace;
+using OpenTelemetry.Resources;
+using Azure.Monitor.OpenTelemetry.Exporter;
+using System.Diagnostics;
 
 namespace Samples;
 
@@ -12,6 +17,7 @@ class Program
 {
     private static ConfigurationHelper.AIFoundryConfig? _config;
     private static PersistentAgentsClient? _agentClient;
+    private static TracerProvider? _tracerProvider;
 
     /// <summary>
     /// Safely clears the console, handling cases where console is not available.
@@ -44,8 +50,14 @@ class Program
             return;
         }
 
+        // Initialize tracing
+        InitializeTracing();
+
         // Run the main sample loop
         await RunSampleLoopAsync();
+
+        // Cleanup
+        _tracerProvider?.Dispose();
 
         Console.WriteLine("Thank you for exploring Azure AI Foundry!");
     }
@@ -115,6 +127,52 @@ class Program
             }
             Console.WriteLine("═══════════════════════════════════════════════════════════");
             return false;
+        }
+    }
+
+    /// <summary>
+    /// Initializes OpenTelemetry tracing with Azure Monitor exporter.
+    /// </summary>
+    private static void InitializeTracing()
+    {
+        try
+        {
+            // Enable experimental Azure SDK observability
+            AppContext.SetSwitch("Azure.Experimental.EnableActivitySource", true);
+
+            // Enable content recording in traces (can include sensitive information)
+            AppContext.SetSwitch("Azure.Experimental.TraceGenAIMessageContent", true);
+
+            var connectionString = _config!.ApplicationInsightsConnectionString;
+
+            var tracerBuilder = Sdk.CreateTracerProviderBuilder()
+                .AddSource("Azure.AI.Agents.Persistent.*")
+                .AddSource("AgentTracingSample")
+                .AddSource("AgentTracingGroupingSample")
+                .AddSource("ContentFilterSample")
+                //.SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("AgentTracingSample"))
+                .AddConsoleExporter();
+
+            if (!string.IsNullOrEmpty(connectionString))
+            {
+                tracerBuilder.AddAzureMonitorTraceExporter(
+                    options =>
+                    {
+                        options.ConnectionString = connectionString;
+                    }
+                );
+                Console.WriteLine("OpenTelemetry tracing initialized with Azure Monitor and Console exporters.");
+            }
+            else
+            {
+                Console.WriteLine("OpenTelemetry tracing initialized with Console exporter only.");
+            }
+
+            _tracerProvider = tracerBuilder.Build();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Warning: Failed to initialize tracing: {ex.Message}");
         }
     }
 

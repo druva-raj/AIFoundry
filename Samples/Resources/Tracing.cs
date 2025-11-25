@@ -36,34 +36,16 @@ public class TracingAgent : Base
     }
 
     /// <summary>
-    /// Configures tracing and executes a sample agent interaction.
+    /// Executes a sample agent interaction with tracing.
+    /// Note: Tracing is initialized globally in Program.cs
     /// </summary>
     private async Task RunTracedAgentAsync()
     {
-        // Enable experimental Azure SDK observability
-        AppContext.SetSwitch("Azure.Experimental.EnableActivitySource", true);
-
-        // Enable content recording in traces (can include sensitive information)
-        AppContext.SetSwitch("Azure.Experimental.TraceGenAIMessageContent", true);
-
-        var config = ConfigurationHelper.LoadConfiguration();
-        var connectionString = config.ApplicationInsightsConnectionString;
-
-        var tracerProvider = Sdk.CreateTracerProviderBuilder()
-            .AddSource("Azure.AI.Agents.Persistent.*")
-            .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("AgentTracingSample"))
-            .AddAzureMonitorTraceExporter(
-                options =>
-                {
-                    options.ConnectionString = connectionString;
-                }
-            ).Build();
-
-        // Create and run the agent based on agent id
-        PersistentAgent agent = await AgentClient.Administration.GetAgentAsync("asst_kmYNOylpp5V4DTyWSmsV5kRm");
-
         using (var activity = ActivitySource.StartActivity("Agent Interaction"))
         {   
+            // Create and run the agent based on agent id
+            PersistentAgent agent = await AgentClient.Administration.GetAgentAsync("asst_lyICfYOFpGn4iZs0ttgGMspC");
+
             // Create a new thread for the agent interaction
             PersistentAgentThread thread = await AgentClient.Threads.CreateThreadAsync();
 

@@ -1,9 +1,5 @@
 using Azure.AI.Agents.Persistent;
 using Samples.Common;
-using OpenTelemetry;
-using OpenTelemetry.Trace;
-using OpenTelemetry.Resources;
-using Azure.Monitor.OpenTelemetry.Exporter;
 using System.Diagnostics;
 using Azure;
 
@@ -37,46 +33,20 @@ public class TracingGrouping : Base
     }
 
     /// <summary>
-    /// Configures tracing with custom grouping and executes a sample agent interaction.
+    /// Executes a sample agent interaction with custom trace grouping tags.
+    /// Uses the global trace provider configured in Program.cs.
     /// </summary>
     private async Task RunTracedAgentWithGroupingAsync()
     {
-        // Enable experimental Azure SDK observability
-        AppContext.SetSwitch("Azure.Experimental.EnableActivitySource", true);
-
-        // Enable content recording in traces (can include sensitive information)
-        AppContext.SetSwitch("Azure.Experimental.TraceGenAIMessageContent", true);
-
-        var config = ConfigurationHelper.LoadConfiguration();
-        var connectionString = config.ApplicationInsightsConnectionString;
-
         // Placeholder values for grouping
         var userLogin = "user@example.com"; // Placeholder for actual user login
         var mmsid = "MMSID-12345"; // Placeholder for MMSID
-
-        var tracerProvider = Sdk.CreateTracerProviderBuilder()
-            .AddSource("Azure.AI.Agents.Persistent.*")
-            .AddSource("AgentTracingGroupingSample")
-            .SetResourceBuilder(ResourceBuilder.CreateDefault()
-                .AddService("AgentTracingGroupingSample")
-                .AddAttributes(new Dictionary<string, object>
-                {
-                    ["user.login"] = userLogin,
-                    ["user.mmsid"] = mmsid
-                }))
-            .AddAzureMonitorTraceExporter(
-                options =>
-                {
-                    options.ConnectionString = connectionString;
-                }
-            ).Build();
-
 
         using (var activity = ActivitySource.StartActivity($"Agent Interaction - User: {userLogin}, MMSID: {mmsid}"))
         {
 
             // Create and run the agent based on agent id
-            PersistentAgent agent = await AgentClient.Administration.GetAgentAsync("asst_kmYNOylpp5V4DTyWSmsV5kRm");
+            PersistentAgent agent = await AgentClient.Administration.GetAgentAsync("asst_lyICfYOFpGn4iZs0ttgGMspC");
 
             // Create a new thread for the agent interaction
             PersistentAgentThread thread = await AgentClient.Threads.CreateThreadAsync();
