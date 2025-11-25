@@ -196,7 +196,7 @@ public class ContentFilter : Base
                     Console.WriteLine("\nDetailed Analysis:");
                     
                     // Inspect all properties
-                    var detailsType = run.IncompleteDetails.GetType
+                    var detailsType = run.IncompleteDetails.GetType();
                     foreach (var prop in detailsType.GetProperties())
                     {
                         var value = prop.GetValue(run.IncompleteDetails);

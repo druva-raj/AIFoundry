@@ -1,5 +1,7 @@
 using Azure.AI.Agents.Persistent;
 using Microsoft.AspNetCore.WebUtilities;
+using OpenTelemetry;
+using System.Diagnostics;
 
 namespace Samples.Common;
 
@@ -71,6 +73,9 @@ public abstract class Base
         ThreadRun run, 
         TimeSpan? maxWaitTime = null)
     {
+        // Suppress tracing for this polling method to reduce noise
+        using var suppressScope = SuppressInstrumentationScope.Begin();
+        
         maxWaitTime ??= TimeSpan.FromMinutes(5);
         var startTime = DateTime.UtcNow;
 
