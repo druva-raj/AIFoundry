@@ -150,6 +150,7 @@ class Program
                 .AddSource("AgentTracingSample")
                 .AddSource("AgentTracingGroupingSample")
                 .AddSource("ContentFilterSample")
+                .AddSource("MCPAgentSample")
                 //.SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("AgentTracingSample"))
                 .AddConsoleExporter();
 

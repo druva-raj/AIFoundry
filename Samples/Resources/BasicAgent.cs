@@ -68,7 +68,7 @@ public class BasicAgent : Base
         finally
         {
             // Clean up resources
-            await CleanupAsync(agent, thread);
+            // await CleanupAsync(agent, thread);
         }
 
         DisplayFooter();
