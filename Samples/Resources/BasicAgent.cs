@@ -33,7 +33,7 @@ public class BasicAgent : Base
             Console.WriteLine("Creating a basic AI agent...");
             agent = await AgentClient.Administration.CreateAgentAsync(
                 model: ModelDeploymentName,
-                name: "BasicDemo-Helper",
+                name: "Foundry-Basic-Agent",
                 instructions: "You are a helpful AI assistant. You are knowledgeable, friendly, and concise. " +
                              "Answer questions clearly and provide helpful information. " +
                              "If you don't know something, say so honestly.");

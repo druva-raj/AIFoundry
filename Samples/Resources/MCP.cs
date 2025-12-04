@@ -40,32 +40,28 @@ public class MCP : Base
             activity?.SetTag("mcp.server.url", MCP_SERVER_URL);
 
             // Create MCP tool definition
-            Console.WriteLine($"Setting up MCP integration with {MCP_SERVER_URL}...");
-            MCPToolDefinition mcpTool = new(MCP_SERVER_LABEL, MCP_SERVER_URL);
+            MCPToolDefinition mcpTool = new(serverLabel: MCP_SERVER_LABEL, serverUrl: MCP_SERVER_URL);
+            //mcpTool.AllowedTools.Add("microsoft_docs_search");
 
             // Create an AI agent with MCP tools
-            Console.WriteLine("Creating agent with MCP capabilities...");
             agent = await AgentClient.Administration.CreateAgentAsync(
                 model: ModelDeploymentName,
-                name: "mslearn-mcp-agent",
+                name: "Foundry-MCP-Microsoft-Learn",
                 instructions: "You are a helpful agent that can use MCP tools to assist users. " +
                              "Use the available MCP tools to answer questions and perform tasks. " +
                              "When searching for information, provide comprehensive and accurate responses " +
                              "based on the official Microsoft documentation.",
                 tools: [mcpTool]);
 
-            Console.WriteLine($"Agent created: {agent.Name} (ID: {agent.Id})");
             activity?.SetTag("agent.id", agent.Id);
             activity?.SetTag("agent.name", agent.Name);
 
             // Create a conversation thread
-            Console.WriteLine("Creating conversation thread...");
             thread = await AgentClient.Threads.CreateThreadAsync();
-            Console.WriteLine($"Thread created: {thread.Id}");
             activity?.SetTag("thread.id", thread.Id);
 
             // Demonstrate MCP functionality with a sample query
-            string userQuestion = "How to connect to Cosmos DB via Python SDK?";
+            string userQuestion = "How to connect to Cosmos DB via Python SDK in 100 words?";
             Console.WriteLine($"\n[User]: {userQuestion}");
             
             // Create message in thread
@@ -80,7 +76,6 @@ public class MCP : Base
             ToolResources toolResources = mcpToolResource.ToToolResources();
 
             // Create and run the agent
-            Console.WriteLine("\nProcessing request with MCP tools...");
             ThreadRun run = await AgentClient.Runs.CreateRunAsync(thread, agent, toolResources);
 
             // Wait for completion and handle any required actions
@@ -106,9 +101,6 @@ public class MCP : Base
 
             // Display the conversation
             await DisplayMessagesAsync(thread.Id);
-
-            Console.WriteLine("\nMCP completed successfully!");
-            Console.WriteLine("The agent successfully used MCP tools to search Microsoft Learn documentation.");
         }
         catch (Exception ex)
         {

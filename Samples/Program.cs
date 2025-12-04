@@ -80,7 +80,15 @@ class Program
             ConfigurationHelper.DisplayConfiguration(_config);
 
             Console.WriteLine("Creating AI Foundry client...");
-            _agentClient = AgentClientFactory.CreateClient(_config);
+            
+            // Set to true to see full HTTP request/response content including prompts
+            bool enableHttpLogging = true;
+            _agentClient = AgentClientFactory.CreateClient(_config, enableHttpLogging);
+            
+            if (enableHttpLogging)
+            {
+                Console.WriteLine("HTTP logging enabled - full request/response content will be logged to console.");
+            }
 
             Console.WriteLine("Validating connection...");
             if (!await AgentClientFactory.ValidateConnectionAsync(_agentClient))
@@ -263,6 +271,7 @@ class Program
         return new List<Base>
         {
             new BasicAgent(_agentClient!, _config!.ModelDeploymentName),
+            new ExistingAgent(_agentClient!, _config!.ModelDeploymentName),
             new TracingAgent(_agentClient!, _config!.ModelDeploymentName),
             new TracingGrouping(_agentClient!, _config!.ModelDeploymentName),
             new MCP(_agentClient!, _config!.ModelDeploymentName),
@@ -272,6 +281,7 @@ class Program
             new ConnectedAgent(_agentClient!, _config!.ModelDeploymentName),
             new AzureAISearchAgent(_agentClient!, _config!.ModelDeploymentName, _config!),
             new CombinedSearchMCPAgent(_agentClient!, _config!.ModelDeploymentName, _config!),
+            new AgentEvaluation(_agentClient!, _config!.ModelDeploymentName, _config!),
             new ErrorHandling(_agentClient!, _config!.ModelDeploymentName),
             new ContentFilter(_agentClient!, _config!.ModelDeploymentName),
         };

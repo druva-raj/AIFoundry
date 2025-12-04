@@ -1,5 +1,8 @@
 using Azure.AI.Agents.Persistent;
+using Azure.Core;
+using Azure.Core.Diagnostics;
 using Azure.Identity;
+using System.Diagnostics.Tracing;
 
 namespace Samples.Common;
 
@@ -8,18 +11,30 @@ namespace Samples.Common;
 /// </summary>
 public static class AgentClientFactory
 {
+    // Keep a reference to prevent garbage collection
+    private static AzureEventSourceListener? _listener;
+
     /// <summary>
     /// Creates a PersistentAgentsClient using the provided configuration.
     /// </summary>
     /// <param name="config">The configuration containing authentication and endpoint information.</param>
+    /// <param name="enableHttpLogging">Enable verbose HTTP request/response logging to see full prompts.</param>
     /// <returns>A configured PersistentAgentsClient.</returns>
-    public static PersistentAgentsClient CreateClient(ConfigurationHelper.AIFoundryConfig config)
+    public static PersistentAgentsClient CreateClient(ConfigurationHelper.AIFoundryConfig config, bool enableHttpLogging = false)
     {
         // Create Service Principal credentials
         var credential = new ClientSecretCredential(
             config.TenantId, 
             config.ClientId, 
             config.ClientSecret);
+
+        if (enableHttpLogging)
+        {
+            // Enable console logging to see HTTP request/response content
+            // This will show the full JSON payloads including prompts, tool definitions, etc.
+            _listener = AzureEventSourceListener.CreateConsoleLogger(EventLevel.Verbose);
+            Console.WriteLine("[HTTP Logging] Enabled - full request/response bodies will be logged.");
+        }
 
         // Create and return the client
         return new PersistentAgentsClient(config.ProjectEndpoint, credential);
